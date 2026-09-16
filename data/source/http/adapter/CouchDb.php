@@ -120,7 +120,8 @@ class CouchDb extends \lithium\data\source\Http {
 	 */
 	public function __call($method, $params = []) {
 		list($path, $data, $options) = ($params + ['/', [], []]);
-		return json_decode($this->connection->{$method}($path, $data, $options));
+		$result = $this->connection->{$method}($path, $data, $options);
+		return json_decode($result === null ? '' : $result);
 	}
 
 	/**

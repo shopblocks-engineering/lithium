@@ -30,9 +30,7 @@ class HashTest extends \lithium\test\Unit {
 		$this->assertEqual(md5($salt . $value), $result);
 
 		$sha256 = function($value) {
-			if (function_exists('mhash')) {
-				return bin2hex(mhash(MHASH_SHA256, $value));
-			} elseif (function_exists('hash')) {
+			if (function_exists('hash')) {
 				return hash('sha256', $value);
 			}
 			throw new Exception();
@@ -141,21 +139,21 @@ class HashTest extends \lithium\test\Unit {
 		$this->assertFalse(Hash::compare('', '0'));
 		$this->assertFalse(Hash::compare('0', ''));
 
-		$this->assertException('/to be (a )?string/', function() {
+		$this->assertException('/(to be (a )?string|must be of type string)/', function() {
 			Hash::compare(null, null);
 		});
-		$this->assertException('/to be (a )?string/', function() {
+		$this->assertException('/(to be (a )?string|must be of type string)/', function() {
 			Hash::compare(null, '');
 		});
-		$this->assertException('/to be (a )?string/', function() {
+		$this->assertException('/(to be (a )?string|must be of type string)/', function() {
 			Hash::compare('', null);
 		});
 
 		$this->assertTrue(Hash::compare('1', '1'));
-		$this->assertException('/to be (a )?string/', function() {
+		$this->assertException('/(to be (a )?string|must be of type string)/', function() {
 			Hash::compare('1', 1);
 		});
-		$this->assertException('/to be (a )?string/', function() {
+		$this->assertException('/(to be (a )?string|must be of type string)/', function() {
 			Hash::compare(1, '1');
 		});
 

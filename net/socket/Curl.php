@@ -78,7 +78,7 @@ class Curl extends \lithium\net\Socket {
 			CURLOPT_RETURNTRANSFER => true
 		]);
 
-		if (!is_resource($this->_resource)) {
+		if (!$this->_isHandle($this->_resource)) {
 			return false;
 		}
 		$this->_isConnected = true;
@@ -96,11 +96,12 @@ class Curl extends \lithium\net\Socket {
 	 * @return boolean True on closed connection
 	 */
 	public function close() {
-		if (!is_resource($this->_resource)) {
+		if (!$this->_isHandle($this->_resource)) {
 			return true;
 		}
 		curl_close($this->_resource);
-		return !is_resource($this->_resource);
+		$this->_resource = null;
+		return true;
 	}
 
 	/**
@@ -121,7 +122,7 @@ class Curl extends \lithium\net\Socket {
 	 *         of `curl_exec` otherwise.
 	 */
 	public function read() {
-		if (!is_resource($this->_resource)) {
+		if (!$this->_isHandle($this->_resource)) {
 			return false;
 		}
 		return curl_exec($this->_resource);
@@ -134,7 +135,7 @@ class Curl extends \lithium\net\Socket {
 	 * @return boolean
 	 */
 	public function write($data = null) {
-		if (!is_resource($this->_resource)) {
+		if (!$this->_isHandle($this->_resource)) {
 			return false;
 		}
 		if (!is_object($data)) {
@@ -176,10 +177,20 @@ class Curl extends \lithium\net\Socket {
 	 *         option could not be set, true otherwise.
 	 */
 	public function timeout($time) {
-		if (!is_resource($this->_resource)) {
+		if (!$this->_isHandle($this->_resource)) {
 			return false;
 		}
 		return curl_setopt($this->_resource, CURLOPT_CONNECTTIMEOUT, $time);
+	}
+
+	/**
+	 * Checks for both legacy cURL resources and PHP 8's CurlHandle objects.
+	 *
+	 * @param mixed $handle
+	 * @return boolean
+	 */
+	protected function _isHandle($handle) {
+		return is_resource($handle) || (is_object($handle) && get_class($handle) === 'CurlHandle');
 	}
 
 	/**

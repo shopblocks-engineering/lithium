@@ -218,7 +218,9 @@ class Entity extends \lithium\core\ObjectDeprecated implements \Serializable {
 		trigger_error($message, E_USER_DEPRECATED);
 
 		if (method_exists($class = $this->_model, 'object')) {
-			$result = $class::object()->respondsTo($method);
+			$object = $class::object();
+			$result = Inspector::isCallable($object, $method, $internal);
+			$result = $result || $object->respondsTo($method);
 		} else {
 			$result = Inspector::isCallable($class, $method, $internal);
 		}
@@ -542,12 +544,7 @@ class Entity extends \lithium\core\ObjectDeprecated implements \Serializable {
 	 * @return string Serialized properties of the object.
 	 */
 	public function serialize() {
-		$vars = get_object_vars($this);
-		unset($vars['_schema']);
-		unset($vars['_config']['schema']);
-		unset($vars['_handlers']);
-
-		return serialize($vars);
+		return serialize($this->__serialize());
 	}
 
 	/**
@@ -560,7 +557,18 @@ class Entity extends \lithium\core\ObjectDeprecated implements \Serializable {
 	 * @return void
 	 */
 	public function unserialize($data) {
-		$data = unserialize($data);
+		$this->__unserialize(unserialize($data));
+	}
+
+	public function __serialize() {
+		$vars = get_object_vars($this);
+		unset($vars['_schema']);
+		unset($vars['_config']['schema']);
+		unset($vars['_handlers']);
+		return $vars;
+	}
+
+	public function __unserialize($data) {
 		static::_init();
 
 		foreach ($data as $key => $value) {

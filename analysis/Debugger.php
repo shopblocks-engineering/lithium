@@ -140,7 +140,7 @@ class Debugger {
 	 * @return mixed Returns the line number where the method called is defined.
 	 */
 	protected static function _definition($reference, $callLine) {
-		if (file_exists($reference)) {
+		if ($reference && file_exists($reference)) {
 			foreach (array_reverse(token_get_all(file_get_contents($reference))) as $token) {
 				if (!is_array($token) || $token[2] > $callLine) {
 					continue;
@@ -153,13 +153,13 @@ class Debugger {
 		}
 		list($class,) = explode('::', $reference);
 
-		if (!class_exists($class)) {
+		if (!$class || !class_exists($class)) {
 			return;
 		}
 
 		$classRef = new ReflectionClass($class);
 		$methodInfo = Inspector::info($reference);
-		$methodDef = join("\n", Inspector::lines($classRef->getFileName(), range(
+		$methodDef = join("\n", (array) Inspector::lines($classRef->getFileName(), range(
 			$methodInfo['start'] + 1, $methodInfo['end'] - 1
 		)));
 

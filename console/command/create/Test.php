@@ -66,7 +66,7 @@ class Test extends \lithium\console\command\Create {
 		$use = $this->_use($request);
 		$path = Libraries::path($use);
 
-		if (!file_exists($path)) {
+		if (!$path || !file_exists($path)) {
 			return "";
 		}
 		$methods = (array) Inspector::methods($use, 'extents');

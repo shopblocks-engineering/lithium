@@ -79,7 +79,8 @@ class Inspector {
 		if (strpos($identifier, '::')) {
 			return (strpos($identifier, '$') !== false) ? 'property' : 'method';
 		}
-		if (is_readable(Libraries::path($identifier))) {
+		$path = Libraries::path($identifier);
+		if ($path && is_readable($path)) {
 			if (class_exists($identifier) && in_array($identifier, get_declared_classes())) {
 				return 'class';
 			}
@@ -400,9 +401,9 @@ class Inspector {
 		if (strpos($data, PHP_EOL) !== false) {
 			$c = explode(PHP_EOL, PHP_EOL . $data);
 		} else {
-			if (!file_exists($data)) {
+			if (!$data || !file_exists($data)) {
 				$data = Libraries::path($data);
-				if (!file_exists($data)) {
+				if (!$data || !file_exists($data)) {
 					return null;
 				}
 			}
@@ -435,7 +436,7 @@ class Inspector {
 		$options += $defaults;
 		$class = is_object($class) ? get_class($class) : $class;
 
-		if (!class_exists($class, $options['autoLoad'])) {
+		if (!$class || !class_exists($class, $options['autoLoad'])) {
 			return false;
 		}
 		return class_parents($class);
@@ -509,6 +510,9 @@ class Inspector {
 		$static = $dynamic = [];
 		$trim = function($c) { return trim(trim($c, '\\')); };
 		$join = function($i) { return join('', $i); };
+		$nameTokens = defined('T_NAME_QUALIFIED')
+			? ['T_STRING', 'T_NAME_QUALIFIED', 'T_NAME_FULLY_QUALIFIED']
+			: ['T_STRING', 'T_NS_SEPARATOR'];
 
 		foreach ((array) $classes as $class) {
 			$data = explode("\n", file_get_contents(Libraries::path($class)));
@@ -518,7 +522,7 @@ class Inspector {
 				'return'      => 'content',
 				'lineBreaks'  => true,
 				'startOfLine' => true,
-				'capture'     => ['T_STRING', 'T_NS_SEPARATOR']
+				'capture'     => $nameTokens
 			]));
 
 			if ($classes) {
@@ -552,6 +556,7 @@ class Inspector {
 		if (!class_exists($class)) {
 			throw new RuntimeException(sprintf('Class `%s` could not be found.', $class));
 		}
+		$class = ltrim($class, "\\");
 		return unserialize(sprintf('O:%d:"%s":0:{}', strlen($class), $class));
 	}
 

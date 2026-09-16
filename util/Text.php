@@ -103,9 +103,9 @@ class Text {
 		if ($format === 'regex' || (!$format && $options['escape'])) {
 			$format = sprintf(
 				'/(?<!%s)%s%%s%s/',
-				preg_quote($options['escape'], '/'),
-				str_replace('%', '%%', preg_quote($options['before'], '/')),
-				str_replace('%', '%%', preg_quote($options['after'], '/'))
+				preg_quote($options['escape'] === null ? '' : $options['escape'], '/'),
+				str_replace('%', '%%', preg_quote($options['before'] === null ? '' : $options['before'], '/')),
+				str_replace('%', '%%', preg_quote($options['after'] === null ? '' : $options['after'], '/'))
 			);
 		}
 

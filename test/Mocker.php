@@ -251,11 +251,12 @@ class Mocker {
 			'    $this->parent = $argCount === 0 ? false : func_get_arg($argCount - 1);',
 			'    if (!is_a($this->parent, __NAMESPACE__ . "\Mock")) {',
 			'        $class = new \ReflectionClass(\'{:namespace}\Mock\');',
-			'        $this->parent = $class->newInstanceArgs($args);',
+			'        $this->parent = $class->newInstanceArgs(array_values($args));',
 			'    }',
 			'    $this->parent->mocker = $this;',
 			'    if (method_exists(\'{:mocker}\', "__construct")) {',
-			'        call_user_func_array("parent::__construct", $args);',
+			'        $parentArgs = array_values($args);',
+			'        parent::__construct(...$parentArgs);',
 			'    }',
 			'}',
 		],
@@ -264,10 +265,11 @@ class Mocker {
 			'    $args = compact({:stringArgs});',
 			'    $token = spl_object_hash($this);',
 			'    if (func_num_args() > 0 && func_get_arg(func_num_args() - 1) === $token) {',
-			'        return call_user_func_array("parent::{:method}", compact({:stringArgs}));',
+			'        $parentArgs = array_values(compact({:stringArgs}));',
+			'        return parent::{:method}(...$parentArgs);',
 			'    }',
 			'    $method = [$this->parent, "{:method}"];',
-			'    return call_user_func_array($method, $args);',
+			'    return call_user_func_array($method, array_values($args));',
 			'}',
 		],
 		'staticMethod' => [
@@ -275,10 +277,11 @@ class Mocker {
 			'    $args = compact({:stringArgs});',
 			'    $token = "1f3870be274f6c49b3e31a0c6728957f";',
 			'    if (func_num_args() > 0 && func_get_arg(func_num_args() - 1) === $token) {',
-			'        return call_user_func_array("parent::{:method}", compact({:stringArgs}));',
+			'        $parentArgs = array_values(compact({:stringArgs}));',
+			'        return parent::{:method}(...$parentArgs);',
 			'    }',
 			'    $method = \'{:namespace}\Mock::{:method}\';',
-			'    return call_user_func_array($method, $args);',
+			'    return call_user_func_array($method, array_values($args));',
 			'}',
 		],
 		'endClass' => [
@@ -372,7 +375,7 @@ class Mocker {
 			'        }',
 			'    }',
 			'    $class = new \ReflectionClass(\'{:namespace}\MockDelegate\');',
-			'    $class->newInstanceArgs($args);',
+			'    $class->newInstanceArgs(array_values($args));',
 			'}',
 		],
 		'destructor' => [
@@ -385,7 +388,7 @@ class Mocker {
 			'    $method = \'{:namespace}\MockDelegate::{:method}\';',
 			'    $result = _Filters::run(__CLASS__, "{:method}", $args,',
 			'        function($args) use(&$method) {',
-			'            return call_user_func_array($method, $args);',
+			'            return call_user_func_array($method, array_values($args));',
 			'        }',
 			'    );',
 			'    if (!isset(static::$staticResults["{:method}"])) {',
@@ -406,7 +409,7 @@ class Mocker {
 			'    $_method = [$this->mocker, "{:method}"];',
 			'    $result = _Filters::run(__CLASS__, "{:method}", $args,',
 			'        function($args) use(&$_method) {',
-			'           return call_user_func_array($_method, $args);',
+			'           return call_user_func_array($_method, array_values($args));',
 			'        }',
 			'    );',
 			'    if (!isset($this->results["{:method}"])) {',
@@ -576,14 +579,29 @@ class Mocker {
 	 * @return string
 	 */
 	protected static function _methodParams(ReflectionFunctionAbstract $method) {
-		$pattern = '/Parameter #[0-9]+ \[ [^\>]+>([^\]]+) \]/';
-		$replace = [
-			'from' => [' Array', 'or NULL'],
-			'to' => [' array()', ''],
-		];
-		preg_match_all($pattern, $method, $matches);
-		$params = implode(', ', $matches[1]);
-		return str_replace($replace['from'], $replace['to'], $params);
+		$params = [];
+		foreach ($method->getParameters() as $parameter) {
+			$param = '';
+			if ($type = $parameter->getType()) {
+				$typeName = (string) $type;
+				if (method_exists($type, 'isBuiltin') && !$type->isBuiltin()) {
+					$typeName = '\\' . ltrim($typeName, '\\');
+				}
+				$param .= $typeName . ' ';
+			}
+			$param .= $parameter->isPassedByReference() ? '&' : '';
+			$param .= $parameter->isVariadic() ? '...' : '';
+			$param .= '$' . $parameter->getName();
+
+			if ($parameter->isDefaultValueAvailable()) {
+				$default = $parameter->isDefaultValueConstant()
+					? $parameter->getDefaultValueConstantName()
+					: var_export($parameter->getDefaultValue(), true);
+				$param .= ' = ' . $default;
+			}
+			$params[] = $param;
+		}
+		return implode(', ', $params);
 	}
 
 	/**
@@ -593,9 +611,9 @@ class Mocker {
 	 * @return string
 	 */
 	protected static function _stringMethodParams(ReflectionFunctionAbstract $method) {
-		$pattern = '/Parameter [^$]+\$([^ ]+)/';
-		preg_match_all($pattern, $method, $matches);
-		$params = implode("', '", $matches[1]);
+		$params = implode("', '", array_map(function($parameter) {
+			return $parameter->getName();
+		}, $method->getParameters()));
 		return strlen($params) > 0 ? "'{$params}'" : 'array()';
 	}
 

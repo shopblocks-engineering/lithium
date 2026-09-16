@@ -9,7 +9,7 @@
 
 namespace lithium\test;
 
-use Error;
+use Throwable;
 use Exception;
 use ErrorException;
 use ReflectionClass;
@@ -136,7 +136,7 @@ class Unit extends \lithium\core\ObjectDeprecated {
 	 */
 	public function skipIf($condition, $message = false) {
 		if ($condition) {
-			throw new Exception(is_string($message) ? $message : null);
+			throw new Exception(is_string($message) ? $message : '');
 		}
 	}
 
@@ -155,8 +155,7 @@ class Unit extends \lithium\core\ObjectDeprecated {
 	 * @return array
 	 */
 	public function methods() {
-		static $methods;
-		return $methods ?: $methods = array_values(preg_grep('/^test/', get_class_methods($this)));
+		return array_values(preg_grep('/^test/', get_class_methods($this)));
 	}
 
 	/**
@@ -206,7 +205,7 @@ class Unit extends \lithium\core\ObjectDeprecated {
 
 		try {
 			$this->skip();
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$this->_handleException($e);
 			return $this->_results;
 		}
@@ -471,9 +470,7 @@ class Unit extends \lithium\core\ObjectDeprecated {
 			$closure();
 			$message = sprintf('An exception "%s" was expected but not thrown.', $expected);
 			return $this->assert(false, $message, compact('expected', 'result'));
-		} catch (Exception $e) {
-			// fallthrough
-		} catch (Error $e) {
+		} catch (Throwable $e) {
 			// fallthrough
 		}
 		$class = get_class($e);
@@ -518,7 +515,7 @@ class Unit extends \lithium\core\ObjectDeprecated {
 
 		try {
 			$closure();
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$class = get_class($e);
 			$eMessage = $e->getMessage();
 			if (is_a($e, $expected)) {
@@ -565,7 +562,7 @@ class Unit extends \lithium\core\ObjectDeprecated {
 	public function assertNotPattern($expected, $result, $message = '{:message}') {
 		list($expected, $result) = $this->_normalizeLineEndings($expected, $result);
 		$params = compact('expected', 'result');
-		return $this->assert(!preg_match($expected, $result), $message, $params);
+		return $this->assert(!preg_match($expected, $result === null ? '' : $result), $message, $params);
 	}
 
 	/**
@@ -1626,7 +1623,7 @@ class Unit extends \lithium\core\ObjectDeprecated {
 				$method = $params['method'];
 				$lineFlag = __LINE__ + 1;
 				$this->{$method}();
-			} catch (Exception $e) {
+			} catch (Throwable $e) {
 				$this->_handleException($e);
 			}
 		});
@@ -1645,7 +1642,7 @@ class Unit extends \lithium\core\ObjectDeprecated {
 
 		try {
 			$this->tearDown();
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$this->_handleException($e, __LINE__ - 2);
 		}
 		return $passed;

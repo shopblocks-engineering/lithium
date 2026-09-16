@@ -16,6 +16,8 @@ use lithium\test\Mocker;
  */
 class MockerChainTest extends \lithium\test\Unit {
 
+	protected $_backup;
+
 	public function setUp() {
 		error_reporting(($this->_backup = error_reporting()) & ~E_USER_DEPRECATED);
 		Mocker::register();
