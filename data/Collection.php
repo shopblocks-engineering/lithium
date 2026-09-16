@@ -234,6 +234,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 *        index of an entity in the set.
 	 * @return boolean Result.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists($offset) {
 		$this->offsetGet($offset);
 		return array_key_exists($offset, $this->_data);
@@ -245,6 +246,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 * @param mixed $offset The offset.
 	 * @return mixed Returns an `Entity` object if exists otherwise returns `null`.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset) {
 		while (!array_key_exists($offset, $this->_data) && $this->_populate()) {}
 
@@ -262,6 +264,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 * @param mixed $data The entity object to add.
 	 * @return mixed Returns the set `Entity` object.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $data) {
 		$this->offsetGet($offset);
 		return $this->_set($data, $offset);
@@ -272,6 +275,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 *
 	 * @param integer $offset The offset to unset.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($offset) {
 		$this->offsetGet($offset);
 		prev($this->_data);
@@ -284,6 +288,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	/**
 	 * Rewinds the collection to the beginning.
 	 */
+	#[\ReturnTypeWillChange]
 	public function rewind() {
 		$this->_started = true;
 		reset($this->_data);
@@ -297,6 +302,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 * @param boolean $full If true, returns the complete key.
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function key($full = false) {
 		if ($this->_started === false) {
 			$this->current();
@@ -323,6 +329,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 *
 	 * @return object|boolean An instance of `Record` or `false` if there is no current valid one.
 	 */
+	#[\ReturnTypeWillChange]
 	public function current() {
 		if (!$this->_started) {
 			$this->rewind();
@@ -341,6 +348,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 * @return mixed Returns the next document in the set, or `false`, if no more documents are
 	 *         available.
 	 */
+	#[\ReturnTypeWillChange]
 	public function next() {
 		if (!$this->_started) {
 			$this->rewind();
@@ -359,6 +367,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 *
 	 * @return boolean `true` if valid, `false` otherwise.
 	 */
+	#[\ReturnTypeWillChange]
 	public function valid() {
 		if (!$this->_started) {
 			$this->rewind();
@@ -643,6 +652,10 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 * @return string Serialized properties of the object.
 	 */
 	public function serialize() {
+		return serialize($this->__serialize());
+	}
+
+	public function __serialize() {
 		$this->offsetGet(null);
 		static::__destruct();
 
@@ -650,7 +663,7 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 		unset($vars['_result']);
 		unset($vars['_handlers']);
 
-		return serialize($vars);
+		return $vars;
 	}
 
 	/**
@@ -663,7 +676,10 @@ abstract class Collection extends \lithium\util\Collection implements \Serializa
 	 * @return void
 	 */
 	public function unserialize($data) {
-		$vars = unserialize($data);
+		$this->__unserialize(unserialize($data));
+	}
+
+	public function __unserialize($vars) {
 		parent::_init();
 
 		foreach ($vars as $key => $value) {

@@ -157,7 +157,9 @@ class Growl extends \lithium\core\ObjectDeprecated {
 		$title = $options['title'];
 
 		$message = compact('type', 'title', 'description') + ['app' => $this->_config['name']];
-		$message = array_map('utf8_encode', $message);
+		$message = array_map(function($value) {
+			return mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+		}, $message);
 
 		$flags = ($options['priority'] & 7) * 2;
 		$flags = ($options['priority'] < 0) ? $flags |= 8 : $flags;
@@ -166,7 +168,7 @@ class Growl extends \lithium\core\ObjectDeprecated {
 		$params = ['c2n5', static::PROTOCOL_VERSION, static::TYPE_NOTIFY, $flags];
 		$lengths = array_map('strlen', $message);
 
-		$data = call_user_func_array('pack', array_merge($params, $lengths));
+		$data = call_user_func_array('pack', array_values(array_merge($params, $lengths)));
 		$data .= join('', $message);
 		$data .= pack('H32', md5($data . $this->_config['password']));
 
@@ -184,11 +186,11 @@ class Growl extends \lithium\core\ObjectDeprecated {
 			return true;
 		}
 		$ct = count($this->_config['notifications']);
-		$app = utf8_encode($this->_config['name']);
+		$app = mb_convert_encoding($this->_config['name'], 'UTF-8', 'ISO-8859-1');
 		$nameEnc = $defaultEnc = '';
 
 		foreach ($this->_config['notifications'] as $i => $name) {
-			$name = utf8_encode($name);
+			$name = mb_convert_encoding($name, 'UTF-8', 'ISO-8859-1');
 			$nameEnc .= pack('n', strlen($name)) . $name;
 			$defaultEnc .= pack('c', $i);
 		}

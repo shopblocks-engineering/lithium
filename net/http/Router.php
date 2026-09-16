@@ -856,7 +856,7 @@ class Router extends \lithium\core\StaticObjectDeprecated {
 		$match = '@\{:([^:}]+):?((?:[^{]+(?:\{[0-9,]+\})?)*?)\}@S';
 		$fields = ['scheme', 'host'];
 		foreach ($fields as $field) {
-			if (preg_match_all($match, $config[$field], $m)) {
+			if (preg_match_all($match, $config[$field] ?: '', $m)) {
 				$tokens = $m[0];
 				$names = $m[1];
 				$regexs = $m[2];
@@ -928,7 +928,7 @@ class Router extends \lithium\core\StaticObjectDeprecated {
 			$fields = ['scheme', 'host'];
 			foreach ($fields as $field) {
 				$dots = '/(?!\{[^\}]*)\.(?![^\{]*\})/';
-				$pattern[$field] = preg_replace($dots, '\.', $config[$field]);
+				$pattern[$field] = preg_replace($dots, '\.', $config[$field] ?: '');
 				$match = '@\{:([^:}]+):?((?:[^{]+(?:\{[0-9,]+\})?)*?)\}@S';
 				if (preg_match_all($match, $pattern[$field], $m)) {
 					$tokens = $m[0];

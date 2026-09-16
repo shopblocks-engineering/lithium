@@ -51,8 +51,8 @@ class Docblock extends \lithium\core\StaticObjectDeprecated {
 		if (strpos($description, "\n\n")) {
 			list($description, $text) = explode("\n\n", $description, 2);
 		}
-		$text = trim($text);
-		$description = trim($description);
+		$text = trim((string) $text);
+		$description = trim((string) $description);
 		return compact('description', 'text', 'tags');
 	}
 
@@ -68,7 +68,7 @@ class Docblock extends \lithium\core\StaticObjectDeprecated {
 	 */
 	public static function tags($string) {
 		$regex = '/\n@(?P<type>' . join('|', static::$tags) . ")/msi";
-		$string = trim($string);
+		$string = trim((string) $string);
 
 		$result = preg_split($regex, "\n$string", -1, PREG_SPLIT_DELIM_CAPTURE);
 		$tags = [];

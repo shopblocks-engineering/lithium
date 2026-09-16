@@ -592,7 +592,7 @@ class UnitTest extends \lithium\test\Unit {
 
 		$test->run();
 
-		$expected = '/expects exactly 1 parameter/';
+		$expected = '/expects exactly 1 (parameter|argument)/';
 		$results = $test->results();
 		$this->assertPattern($expected, $results[0]['message']);
 

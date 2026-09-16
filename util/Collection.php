@@ -409,6 +409,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 * @param string $offset An offset to check for.
 	 * @return boolean `true` if offset exists, `false` otherwise.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists($offset) {
 		return array_key_exists($offset, $this->_data);
 	}
@@ -419,6 +420,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 * @param string $offset The offset to retrieve.
 	 * @return mixed Value at offset.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset) {
 		return $this->_data[$offset];
 	}
@@ -430,6 +432,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 * @param mixed $value The value to set.
 	 * @return mixed The value which was set.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value) {
 		if ($offset === null) {
 			return $this->_data[] = $value;
@@ -442,6 +445,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 *
 	 * @param string $offset The offset to unset.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($offset) {
 		prev($this->_data);
 		if (key($this->_data) === null) {
@@ -455,6 +459,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 *
 	 * @return mixed The current item after rewinding, or `false` if the collection is empty.
 	 */
+	#[\ReturnTypeWillChange]
 	public function rewind() {
 		return reset($this->_data);
 	}
@@ -473,6 +478,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 *
 	 * @return boolean `true` if valid, `false` otherwise.
 	 */
+	#[\ReturnTypeWillChange]
 	public function valid() {
 		return key($this->_data) !== null;
 	}
@@ -482,6 +488,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 *
 	 * @return mixed The current item or `false` on failure.
 	 */
+	#[\ReturnTypeWillChange]
 	public function current() {
 		return current($this->_data);
 	}
@@ -491,6 +498,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 *
 	 * @return scalar Scalar on success or `null` on failure.
 	 */
+	#[\ReturnTypeWillChange]
 	public function key() {
 		return key($this->_data);
 	}
@@ -514,6 +522,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 * @return mixed The next item or `false`, in case there's no next item or the collection
 	 *         is empty.
 	 */
+	#[\ReturnTypeWillChange]
 	public function next() {
 		$value = next($this->_data);
 		return key($this->_data) !== null ? $value : false;
@@ -533,6 +542,7 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 	 *
 	 * @return integer Returns the number of items in the collection.
 	 */
+	#[\ReturnTypeWillChange]
 	public function count() {
 		$count = iterator_count($this);
 		$this->rewind();

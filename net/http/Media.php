@@ -262,7 +262,7 @@ class Media extends \lithium\core\StaticObjectDeprecated {
 			if (!$content = static::_types($type)) {
 				return;
 			}
-			if (strpos($type, '/')) {
+			if ($type && strpos($type, '/')) {
 				return $content;
 			}
 			if (is_array($content) && isset($content['alias'])) {

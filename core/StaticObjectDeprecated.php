@@ -20,6 +20,7 @@ use lithium\analysis\Inspector;
  * @deprecated
  * @see lithium\core\Object
  */
+#[\AllowDynamicProperties]
 class StaticObjectDeprecated {
 
 	/**

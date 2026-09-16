@@ -35,6 +35,7 @@ use lithium\analysis\Inspector;
  * @link http://php.net/manual/en/language.oop5.magic.php#object.set-state
  * @see lithium\core\StaticObject
  */
+#[\AllowDynamicProperties]
 class ObjectDeprecated {
 
 	/**

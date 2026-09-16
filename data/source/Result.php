@@ -114,6 +114,7 @@ abstract class Result extends \lithium\core\ObjectDeprecated implements \Iterato
 	 *
 	 * @return array The current result (or `null` if there is none).
 	 */
+	#[\ReturnTypeWillChange]
 	public function current() {
 		return $this->_current;
 	}
@@ -123,6 +124,7 @@ abstract class Result extends \lithium\core\ObjectDeprecated implements \Iterato
 	 *
 	 * @return integer|null The current key position or `null` if there is none.
 	 */
+	#[\ReturnTypeWillChange]
 	public function key() {
 		return $this->_key;
 	}
@@ -132,6 +134,7 @@ abstract class Result extends \lithium\core\ObjectDeprecated implements \Iterato
 	 *
 	 * @return mixed The next result (or `null` if there is none).
 	 */
+	#[\ReturnTypeWillChange]
 	public function next() {
 		if ($this->_buffer) {
 			list($this->_key, $this->_current) = array_shift($this->_buffer);
@@ -173,6 +176,7 @@ abstract class Result extends \lithium\core\ObjectDeprecated implements \Iterato
 	 *
 	 * @return void
 	 */
+	#[\ReturnTypeWillChange]
 	public function rewind() {}
 
 	/**
@@ -180,6 +184,7 @@ abstract class Result extends \lithium\core\ObjectDeprecated implements \Iterato
 	 *
 	 * @return boolean `true` if valid, `false` otherwise.
 	 */
+	#[\ReturnTypeWillChange]
 	public function valid() {
 		return $this->_valid;
 	}
