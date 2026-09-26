@@ -586,6 +586,9 @@ class Collection extends \lithium\core\ObjectDeprecated implements \ArrayAccess,
 				case (isset($options['handlers'][$class = get_class($item)])):
 					$result[$key] = $options['handlers'][$class]($item);
 				break;
+				case ($item instanceof \DateTimeInterface):
+					$result[$key] = $item->format('Y-m-d H:i:s');
+				break;
 				case (method_exists($item, 'to')):
 					$result[$key] = $item->to('array', $options);
 				break;

@@ -86,6 +86,20 @@ class CollectionTest extends \lithium\test\Unit {
 		$this->assertEqual($expected, $result);
 	}
 
+	public function testDateTimeCastingBeforeToMethod() {
+		$date = new class('2026-01-02 03:04:05') extends \DateTimeImmutable {
+			public function to($format, $options = []) {
+				throw new \RuntimeException('Date conversion must use DateTimeInterface::format().');
+			}
+		};
+
+		$collection = new Collection(['data' => ['date' => $date]]);
+		$this->assertEqual(['date' => '2026-01-02 03:04:05'], $collection->to('array'));
+
+		$handlers = [get_class($date) => function($value) { return $value->format('Y'); }];
+		$this->assertEqual(['date' => '2026'], $collection->to('array', compact('handlers')));
+	}
+
 	/**
 	 * Tests that the `find()` method properly filters items out of the resulting collection.
 	 */
